@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complex SVG Rangoli Pattern</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f9f3ea;
+            margin: 0;
+        }
+
+        svg {
+            width: 90vmin;
+            height: 90vmin;
+        }
+
+        .rotate-animation {
+            animation: rotate 15s linear infinite;
+        }
+
+        .expand-animation {
+            animation: expand 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes expand {
+            from { transform: scale(0.9); }
+            to { transform: scale(1.1); }
+        }
+
+        .flower-petal {
+            fill: #ff6347;
+            transition: fill 0.5s ease-in-out;
+        }
+
+        .flower-petal:hover {
+            fill: #ffa07a;
+        }
+
+        .layer-circle {
+            fill: none;
+            stroke-width: 2;
+            stroke-dasharray: 5, 5;
+            transition: stroke 0.5s ease-in-out;
+        }
+
+        .layer-circle:hover {
+            stroke: #32cd32;
+        }
+    </style>
+</head>
+<body>
+    <svg viewBox="-400 -400 800 800" id="complex-rangoli-pattern"></svg>
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script>
+        const svg = d3.select("#complex-rangoli-pattern");
+
+        // Function to create a flower pattern
+        function createFlower(x, y, radius, petalCount) {
+            const angle = (2 * Math.PI) / petalCount;
+            for (let i = 0; i < petalCount; i++) {
+                const theta = i * angle;
+                const petalX = x + radius * Math.cos(theta);
+                const petalY = y + radius * Math.sin(theta);
+                svg.append("ellipse")
+                    .attr("cx", petalX)
+                    .attr("cy", petalY)
+                    .attr("rx", radius / 4)
+                    .attr("ry", radius)
+                    .attr("transform", `rotate(${(theta * 180) / Math.PI}, ${petalX}, ${petalY})`)
+                    .attr("class", "flower-petal");
+            }
+        }
+
+        // Create the central Rangoli flower with two layers
+        createFlower(0, 0, 80, 10);
+        createFlower(0, 0, 50, 8);
+
+        // Create concentric circles at the center
+        const centerCircles = [15, 30, 45];
+        centerCircles.forEach(radius => {
+            svg.append("circle")
+                .attr("cx", 0)
+                .attr("cy", 0)
+                .attr("r", radius)
+                .attr("fill", "none")
+                .attr("stroke", "#ffa500")
+                .attr("stroke-width", 3)
+                .attr("class", "layer-circle");
+        });
+
+        // Function to create symmetrical diamond shapes around a center
+        function createDiamondPattern(x, y, size, count) {
+            const angle = (2 * Math.PI) / count;
+            for (let i = 0; i < count; i++) {
+                const theta = i * angle;
+                const diamondX = x + size * Math.cos(theta);
+                const diamondY = y + size * Math.sin(theta);
+                svg.append("polygon")
+                    .attr("points", `${diamondX},${diamondY} ${diamondX + 15},${diamondY + 15} ${diamondX},${diamondY + 30} ${diamondX - 15},${diamondY + 15}`)
+                    .attr("fill", "#e91e63")
+                    .attr("transform", `rotate(${(theta * 180) / Math.PI}, ${diamondX}, ${diamondY})`);
+            }
+        }
+
+        createDiamondPattern(0, 0, 120, 16);
+
+        // Function to create outer star pattern
+        function createStarPattern(x, y, radius, starCount) {
+            const angle = (2 * Math.PI) / starCount;
+            for (let i = 0; i < starCount; i++) {
+                const theta = i * angle;
+                const starX = x + radius * Math.cos(theta);
+                const starY = y + radius * Math.sin(theta);
+                svg.append("polygon")
+                    .attr("points", `${starX},${starY} ${starX + 10},${starY + 30} ${starX - 10},${starY + 10} ${starX + 10},${starY + 10} ${starX - 10},${starY + 30}`)
+                    .attr("fill", "#6a5acd")
+                    .attr("class", "expand-animation");
+            }
+        }
+
+        createStarPattern(0, 0, 180, 20);
+
+        // Add outer rotating ring with triangles
+        svg.append("g")
+            .attr("class", "rotate-animation")
+            .selectAll("polygon")
+            .data(d3.range(0, 360, 15))
+            .enter()
+            .append("polygon")
+            .attr("points", "0,-210 10,-230 -10,-230")
+            .attr("fill", "#ff4500")
+            .attr("transform", d => `rotate(${d})`);
+
+        // Draw outermost rotating dashed circle
+        svg.append("circle")
+            .attr("cx", 0)
+            .attr("cy", 0)
+            .attr("r", 240)
+            .attr("fill", "none")
+            .attr("stroke", "#228b22")
+            .attr("stroke-width", 4)
+            .attr("stroke-dasharray", "15,10")
+            .attr("class", "rotate-animation");
+    </script>
+</body>
+</html>
